@@ -1,16 +1,20 @@
+// Modules import
 const express = require('express');
 const AWS = require('aws-sdk');
 const fs = require('fs');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 require('dotenv').config();
-
 const app = express();
 const port = 3001;
+
+// App config
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
+
+//AWS configuration
 
 let awsConfig = {
   accessKeyId: process.env.ACCESS_KEY_ID,
@@ -20,6 +24,8 @@ let awsConfig = {
 AWS.config.update(awsConfig);
 
 const documentClient = new AWS.DynamoDB.DocumentClient();
+
+// API for getting unique client ID's andtheir summary
 
 app.get('/uniqueClientIds', async function getID(req, res) {
   try {
@@ -83,6 +89,8 @@ app.get('/uniqueClientIds', async function getID(req, res) {
     res.status(500).json({ error: error.message });
   }
 });
+
+// API which accepts a logId and return the result for that logId
 
 app.get('/showresult', async (req, res) => {
   const logId = req.query.logId;
@@ -197,6 +205,8 @@ app.get('/filter', async (req, res) => {
     return res.status(201).json(result);
   });
 });
+
+//API used to fetch data from Database, convert to CSV, Upload to S3 and download it.
 
 app.get('/export', async (req, res) => {
   const td = req.query.td !== '' ? new Date(req.query.td) : new Date();
